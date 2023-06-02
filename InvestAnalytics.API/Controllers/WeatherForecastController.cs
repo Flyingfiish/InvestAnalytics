@@ -13,9 +13,9 @@ namespace InvestAnalytics.API.Controllers
     };
 
         private readonly ILogger<WeatherForecastController> _logger;
-        private readonly TinkoffAnalyticsService _service;
+        private readonly TinkoffService _service;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, TinkoffAnalyticsService service)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, TinkoffService service)
         {
             _logger = logger;
             _service = service;

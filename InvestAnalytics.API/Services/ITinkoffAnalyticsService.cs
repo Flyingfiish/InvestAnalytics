@@ -1,6 +1,7 @@
 ﻿namespace InvestAnalytics.API.Services
 {
-    public class TinkoffAnalyticsService
+    public interface ITinkoffAnalyticsService
     {
+
     }
 }
