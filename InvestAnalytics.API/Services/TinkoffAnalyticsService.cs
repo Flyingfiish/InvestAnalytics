@@ -16,8 +16,11 @@ namespace InvestAnalytics.API.Services
         {
             var bonds = await _client.Instruments.BondsAsync(new InstrumentsRequest() { InstrumentStatus = InstrumentStatus.Base });
             var grouped = bonds.Instruments
-                .Where(bond => bond.Currency == "rub");
+                .Where(bond => bond.Currency == "rub"
+                && bond.ApiTradeAvailableFlag
+                && bond.BuyAvailableFlag);
             var count = grouped.Count();
+            var lastPrices = await _client.MarketData.GetLastPricesAsync(new GetLastPricesRequest());
 
             var bondCoupons = new List<BondCoupons>();
             foreach (var bond in grouped)
@@ -35,15 +38,21 @@ namespace InvestAnalytics.API.Services
                 });
                 //var bondResponse = await _client.Instruments.BondByAsync(new InstrumentRequest() { IdType = InstrumentIdType.Uid, Id = bond.Uid });
                 var sumOfCoupons = coupons.Events.Sum(coupon => coupon.PayOneBond.ToDouble());
-                var nominal = bond.InitialNominal.ToDouble() + bond.AciValue.ToDouble();
+                var nominal = bond.InitialNominal.ToDouble();
+                var nominalPlusAci = nominal + bond.AciValue.ToDouble();
+                var lastPrice = lastPrices.LastPrices.FirstOrDefault(price => price.Figi == bond.Figi);
+
+
                 bondCoupons.Add(new BondCoupons
                 {
                     Bond = bond,
                     Coupons = coupons.Events,
                     SumOfCoupons = sumOfCoupons,
-                    YearYield = (365 * sumOfCoupons / period.TotalDays) / nominal,
-                    FullYield = sumOfCoupons / nominal,
-                    Duration = period
+                    YearYield = (365 * sumOfCoupons / period.TotalDays) / nominalPlusAci,
+                    FullYield = sumOfCoupons / nominalPlusAci,
+                    Duration = period,
+                    LastPrice = nominal * (lastPrice is null ? 0 : lastPrice.Price.ToDouble()) / 100,
+                    Nominal = nominal,
                 });
 
             }
@@ -60,6 +69,8 @@ namespace InvestAnalytics.API.Services
             public double YearYield { get; set; }
             public double FullYield { get; set; }
             public double SumOfCoupons { get; set; }
+            public double LastPrice { get; set; }
+            public double Nominal { get; set; }
         }
     }
 
@@ -68,6 +79,11 @@ namespace InvestAnalytics.API.Services
         public static double ToDouble(this MoneyValue moneyValue)
         {
             return Convert.ToDouble($"{moneyValue.Units},{moneyValue.Nano}");
+        }
+
+        public static double ToDouble(this Quotation quotation)
+        {
+            return Convert.ToDouble($"{quotation.Units},{quotation.Nano}");
         }
     }
 }
