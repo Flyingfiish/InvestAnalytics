@@ -3,7 +3,7 @@ using InvestAnalytics.API.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddInvestApiClient((_, settings) => settings.AccessToken = "t.BlnZPMkPE1UmznuwnAFGS94-7ItMENIcoCp4xt0I97M6MvAbHlqB_SO5VfsFWSLbBIo8x1b-R9tPD7Hxs7XMvg");
+builder.Services.AddInvestApiClient((_, settings) => settings.AccessToken = "t.Q6IBV18r_cJY8QPSemrTdJLWQD92fPiSFng7nKWOzS5hpfPwn_5rD09MBjv0ahh3Qy9kWNcCgMNzztVoQbf8qw");
 builder.Services.AddScoped<TinkoffService>();
 
 builder.Services.AddControllers();
