@@ -19,4 +19,11 @@ public static class ServiceCollectionExtentions
         });
         return quartz;
     }
+
+    public static IServiceCollectionQuartzConfigurator AddQuartzJob<T>(this IServiceCollectionQuartzConfigurator quartz,
+        Action<ITriggerConfigurator>? triggerConfigurator = null) where T : IJob
+    {
+        quartz.AddQuartzJob<T>(new JobKey(nameof(T)), triggerConfigurator);
+        return quartz;
+    }
 }

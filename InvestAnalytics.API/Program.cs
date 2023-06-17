@@ -4,15 +4,18 @@ using InvestAnalytics.API.Services.TinkoffService;
 using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("secrets.json",
+    optional: false,
+    reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddInvestApiClient((_, settings) =>
-    settings.AccessToken = "t.Q6IBV18r_cJY8QPSemrTdJLWQD92fPiSFng7nKWOzS5hpfPwn_5rD09MBjv0ahh3Qy9kWNcCgMNzztVoQbf8qw");
+    settings.AccessToken = builder.Configuration["tinkoffApiKey"]);
 builder.Services.AddScoped<TinkoffService>();
 builder.Services.AddQuartz(quartz =>
 {
     quartz.UseMicrosoftDependencyInjectionJobFactory();
-    quartz.AddQuartzJob<ActualizeBondsJob>(new JobKey(nameof(ActualizeBondsJob)), trigger => trigger
+    quartz.AddQuartzJob<ActualizeBondsJob>(trigger => trigger
         .StartAt(DateTime.UtcNow.Date.AddDays(1))
         .WithSimpleSchedule(schedule => schedule
             .WithInterval(TimeSpan.FromDays(1))
