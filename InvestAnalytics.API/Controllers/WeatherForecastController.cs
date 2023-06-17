@@ -1,4 +1,4 @@
-using InvestAnalytics.API.Services;
+using InvestAnalytics.API.Services.TinkoffService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvestAnalytics.API.Controllers
