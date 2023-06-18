@@ -1,6 +1,10 @@
+using System.Reflection;
 using InvestAnalytics.API.Configuration;
+using InvestAnalytics.API.CQRS.Commands;
+using InvestAnalytics.API.CQRS.Commands.Handlers;
 using InvestAnalytics.API.Jobs;
 using InvestAnalytics.API.Services.TinkoffService;
+using MediatR;
 using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,9 +13,14 @@ builder.Configuration.AddJsonFile("secrets.json",
     reloadOnChange: true);
 
 // Add services to the container.
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+builder.Services.AddScoped<ITinkoffService, TinkoffService>();
+builder.Services.AddScoped<IRequestHandler<ActualizeBondsCommand>, ActualizeBondsCommandHandler>();
+
 builder.Services.AddInvestApiClient((_, settings) =>
     settings.AccessToken = builder.Configuration["tinkoffApiKey"]);
-builder.Services.AddScoped<TinkoffService>();
 builder.Services.AddQuartz(quartz =>
 {
     quartz.UseMicrosoftDependencyInjectionJobFactory();
@@ -19,7 +28,8 @@ builder.Services.AddQuartz(quartz =>
         .StartAt(DateTime.UtcNow.Date.AddDays(1))
         .WithSimpleSchedule(schedule => schedule
             .WithInterval(TimeSpan.FromDays(1))
-            .RepeatForever()));
+            .RepeatForever())
+        .StartNow());
 });
 builder.Services.AddQuartzHostedService(quartz => quartz.WaitForJobsToComplete = true);
 

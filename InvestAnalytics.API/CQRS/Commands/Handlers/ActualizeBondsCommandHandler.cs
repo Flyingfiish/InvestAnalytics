@@ -14,7 +14,7 @@ public class ActualizeBondsCommandHandler : IRequestHandler<ActualizeBondsComman
 
     public async Task Handle(ActualizeBondsCommand request, CancellationToken cancellationToken)
     {
-        var bonds = await _tinkoffService.GetBonds();
+        //var bonds = await _tinkoffService.GetBonds();
         throw new NotImplementedException();
     }
 }

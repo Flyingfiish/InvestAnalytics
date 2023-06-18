@@ -15,6 +15,7 @@ public class ActualizeBondsJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
+        Console.WriteLine("test");
         await _mediator.Send(new ActualizeBondsCommand());
     }
 }
