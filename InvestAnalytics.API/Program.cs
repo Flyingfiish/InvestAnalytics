@@ -2,6 +2,7 @@ using System.Reflection;
 using InvestAnalytics.API.Configuration;
 using InvestAnalytics.API.CQRS.Commands;
 using InvestAnalytics.API.CQRS.Commands.Handlers;
+using InvestAnalytics.API.Db;
 using InvestAnalytics.API.Jobs;
 using InvestAnalytics.API.Services.TinkoffService;
 using MediatR;
@@ -13,14 +14,21 @@ builder.Configuration.AddJsonFile("secrets.json",
     reloadOnChange: true);
 
 // Add services to the container.
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
-builder.Services.AddScoped<ITinkoffService, TinkoffService>();
+//Db
+builder.Services.AddDbContext<ApplicationContext>();
+
+//MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 builder.Services.AddScoped<IRequestHandler<ActualizeBondsCommand>, ActualizeBondsCommandHandler>();
 
-builder.Services.AddInvestApiClient((_, settings) =>
-    settings.AccessToken = builder.Configuration["tinkoffApiKey"]);
+//Services
+builder.Services.AddScoped<ITinkoffService, TinkoffService>();
+
+//Tinkoff
+builder.Services.AddInvestApiClient((_, settings) => settings.AccessToken = builder.Configuration["tinkoffApiKey"]);
+
+//Quartz
 builder.Services.AddQuartz(quartz =>
 {
     quartz.UseMicrosoftDependencyInjectionJobFactory();
@@ -32,6 +40,8 @@ builder.Services.AddQuartz(quartz =>
         .StartNow());
 });
 builder.Services.AddQuartzHostedService(quartz => quartz.WaitForJobsToComplete = true);
+
+//...
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
