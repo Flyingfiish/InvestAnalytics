@@ -19,6 +19,7 @@ public static class Extentions
         var existingEntity = await dbSet.FirstOrDefaultAsync(expression);
         if (existingEntity is not null)
         {
+            dbSet.Entry(existingEntity).State = EntityState.Detached;
             entity.Id = existingEntity.Id;
         }
 

@@ -2,6 +2,7 @@ using AutoMapper;
 using InvestAnalytics.API.Db;
 using InvestAnalytics.API.Domain;
 using InvestAnalytics.API.Services.TinkoffService;
+using InvestAnalytics.API.Utils;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,8 +21,17 @@ public class ActualizeBondsCommandHandler : IRequestHandler<ActualizeBondsComman
 
     public async Task Handle(ActualizeBondsCommand request, CancellationToken cancellationToken)
     {
+        Console.WriteLine("Start");
         var getBondsResponses = await _tinkoffService.GetBonds();
-        var bonds = getBondsResponses.Select(gbr => gbr.Bond);
+        var bonds = getBondsResponses.Select(gbr =>
+        {
+            if (gbr.LastPrice is null || gbr.Bond is null) return gbr.Bond;
+            if (gbr.LastPrice.Time is not null)
+                gbr.Bond.UpdatedOn = gbr.LastPrice.Time.ToDateTime();
+            if (gbr.LastPrice.Price is not null)
+                gbr.Bond.LastPrice = gbr.Bond.Nominal * gbr.LastPrice.Price.ToDouble() / 100;
+            return gbr.Bond;
+        });
         var coupons = new List<CouponInfo>();
 
         bonds = await CreateOrUpdateBonds(bonds);
@@ -37,7 +47,7 @@ public class ActualizeBondsCommandHandler : IRequestHandler<ActualizeBondsComman
         }
 
         await CreateOrUpdateCoupons(coupons);
-
+        Console.WriteLine("Done");
     }
 
     private async Task<IEnumerable<BondInfo>> CreateOrUpdateBonds(IEnumerable<BondInfo> bonds)

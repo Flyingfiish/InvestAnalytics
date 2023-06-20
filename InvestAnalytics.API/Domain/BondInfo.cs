@@ -1,8 +1,10 @@
 ﻿using InvestAnalytics.API.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Tinkoff.InvestApi.V1;
 
 namespace InvestAnalytics.API.Domain
 {
+    [Index(nameof(UId))]
     public class BondInfo : IHaveId
     {
         public Guid Id { get; set; }
@@ -13,6 +15,7 @@ namespace InvestAnalytics.API.Domain
         public string Isin { get; set; }
         public string ClassCode { get; set; }
         public double LastPrice { get; set; }
+        public DateTime UpdatedOn { get; set; }
 
         public int Lot { get; set; }
         public string Currency { get; set; }
