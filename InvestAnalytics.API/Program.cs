@@ -1,4 +1,6 @@
 using System.Reflection;
+using AutoMapper;
+using InvestAnalytics.API;
 using InvestAnalytics.API.Configuration;
 using InvestAnalytics.API.CQRS.Commands;
 using InvestAnalytics.API.CQRS.Commands.Handlers;
@@ -15,15 +17,19 @@ builder.Configuration.AddJsonFile("secrets.json",
 
 // Add services to the container.
 
+//Services
+builder.Services.AddSingleton<ITinkoffService, TinkoffService>();
+
+//AutoMapper
+builder.Services.AddSingleton(
+    new MapperConfiguration(config => { config.AddProfile<MappingProfile>(); }).CreateMapper());
+
 //Db
 builder.Services.AddDbContext<ApplicationContext>();
 
 //MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 builder.Services.AddScoped<IRequestHandler<ActualizeBondsCommand>, ActualizeBondsCommandHandler>();
-
-//Services
-builder.Services.AddScoped<ITinkoffService, TinkoffService>();
 
 //Tinkoff
 builder.Services.AddInvestApiClient((_, settings) => settings.AccessToken = builder.Configuration["tinkoffApiKey"]);

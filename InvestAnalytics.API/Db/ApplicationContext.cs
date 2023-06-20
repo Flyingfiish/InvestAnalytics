@@ -15,6 +15,6 @@ public class ApplicationContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(@"Host=localhost;Database=InvestAnalytics.Db;Username=postgre;Password=1324");
+        optionsBuilder.UseNpgsql(@"Host=localhost;Database=InvestAnalytics.Db;Username=postgres;Password=1324");
     }
 }

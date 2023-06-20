@@ -1,8 +1,9 @@
+using InvestAnalytics.API.Domain.Interfaces;
 using Tinkoff.InvestApi.V1;
 
 namespace InvestAnalytics.API.Domain;
 
-public class CouponInfo
+public class CouponInfo : IHaveId
 {
     public Guid Id { get; set; }
     public Guid BondInfoId { get; set; }
